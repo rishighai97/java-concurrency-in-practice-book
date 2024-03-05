@@ -17,11 +17,19 @@ public class CachedFactorizer {
         return hits;
     }
 
-    public synchronized double getCacheHitRatio() {
+    public synchronized double getCacheHitRatio() { // if same lock (this) is used in getFactors(), read will be blocked if some thread has aquired the lock for writing
         return (double) cachedHits / (double) hits;
     }
 
     public List<Integer> getFactors(int number) {
+        synchronized (this) {
+            try {
+                Thread.sleep(2000);
+                System.out.println("Waited for 2 seconds");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         List<Integer> factors = null;
         synchronized (this) {
             ++hits;
@@ -38,11 +46,6 @@ public class CachedFactorizer {
                 this.lastFactors = factors;
             }
         }
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
         return factors;
 
     }
